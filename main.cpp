@@ -117,9 +117,14 @@ int main() {
 
 	// Define vertices of a triangle in Normalized Device Coordinates (NDC: -1, 1)
 	float vertices[] = {
-		-0.5f, -0.5f, 0.0f,
-		0.5f, -0.5f, 0.0f,
-		0.0f,  0.5f, 0.0f
+		// first triangle
+		0.5f,  0.5f, 0.0f,  // top right
+		0.5f, -0.5f, 0.0f,  // bottom right
+		-0.5f,  0.5f, 0.0f,  // top left 
+		// second triangle
+		0.5f, -0.5f, 0.0f,  // bottom right
+		-0.5f, -0.5f, 0.0f,  // bottom left
+		-0.5f,  0.5f, 0.0f   // top left
 	};
 
 	// 0. Bin Vertex Array Object
@@ -164,8 +169,8 @@ int main() {
 		// Every shader and rendering call after glUseProgram will now use this program object (and thus the shaders)
 		glUseProgram(shaderProgram);
 		glBindVertexArray(VAO);
-		// Draw a triangle
-		glDrawArrays(GL_TRIANGLES, 0, 3);
+		// Draw a rectangle
+		glDrawArrays(GL_TRIANGLES, 0, 6);
 
 		// Swap the 2D color buffer
 		// front buffer displays the rendered image
