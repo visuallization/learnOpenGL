@@ -63,6 +63,12 @@ int main() {
 	// Register the resize callback
 	glfwSetFramebufferSizeCallback(window, resizeViewport);
 
+	// Draw meshes in wireframe mode
+	glPolygonMode(GL_FRONT_AND_BACK, GL_LINE);
+	// Draw meshes in filled mode
+	//glPolygonMode(GL_FRONT_AND_BACK, GL_FILL);
+
+
 	// VERTEX SHADER
 	// Create a shader object and reference it by id
 	unsigned int vertexShader;
@@ -115,19 +121,20 @@ int main() {
 	glDeleteShader(fragmentShader);
 
 
-	// Define vertices of a triangle in Normalized Device Coordinates (NDC: -1, 1)
+	// Define vertices of a rectangle in Normalized Device Coordinates (NDC: -1, 1)
 	float vertices[] = {
-		// first triangle
-		0.5f,  0.5f, 0.0f,  // top right
+		0.5f,  0.5f, 0.0f,	// top right
 		0.5f, -0.5f, 0.0f,  // bottom right
-		-0.5f,  0.5f, 0.0f,  // top left 
-		// second triangle
-		0.5f, -0.5f, 0.0f,  // bottom right
-		-0.5f, -0.5f, 0.0f,  // bottom left
-		-0.5f,  0.5f, 0.0f   // top left
+		-0.5f, -0.5f, 0.0f, // bottom left
+		-0.5f,  0.5f, 0.0f  // top left 
+	};
+	// Define drawing indeces to prevent defining redundant vertices
+	unsigned int indices[] = {
+		0, 1, 3,   // first triangle
+		1, 2, 3    // second triangle
 	};
 
-	// 0. Bin Vertex Array Object
+	// 0. Bind Vertex Array Object
 	unsigned int VAO;
 	glGenVertexArrays(1, &VAO);
 	glBindVertexArray(VAO);
@@ -143,6 +150,12 @@ int main() {
 	// Store the vertex data within memory on the graphics card as managed by a vertex buffer object named VBO
 	glBufferData(GL_ARRAY_BUFFER, sizeof(vertices), vertices, GL_STATIC_DRAW);
 	
+	// Bind Elemment Buffer Object (stores indices that OpenGL uses to decide what vertices to draw, helps to reduce the definition of redundant vertices, e.g for each adjustent triangle)
+	unsigned int EBO;
+	glGenBuffers(1, &EBO);
+	glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, EBO);
+	glBufferData(GL_ELEMENT_ARRAY_BUFFER, sizeof(indices), indices, GL_STATIC_DRAW);
+
 	// 2. Set the vertex attributes pointers
 	// Tell OpenGL how it should interpret the vertex data
 	// We have to manually specify what part of our input data goes to which vertex attribute in the vertex shader
@@ -169,8 +182,9 @@ int main() {
 		// Every shader and rendering call after glUseProgram will now use this program object (and thus the shaders)
 		glUseProgram(shaderProgram);
 		glBindVertexArray(VAO);
-		// Draw a rectangle
-		glDrawArrays(GL_TRIANGLES, 0, 6);
+		//glDrawArrays(GL_TRIANGLES, 0, 6);
+		// Draw a rectangle using indices
+		glDrawElements(GL_TRIANGLES, 6, GL_UNSIGNED_INT, 0);
 
 		// Swap the 2D color buffer
 		// front buffer displays the rendered image
