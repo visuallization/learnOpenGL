@@ -51,5 +51,8 @@
     <Image Include="container.jpg">
       <Filter>Textures</Filter>
     </Image>
+    <Image Include="awesomeface.png">
+      <Filter>Textures</Filter>
+    </Image>
   </ItemGroup>
 </Project>

@@ -126,33 +126,65 @@ int main() {
 	Shader shader("shader.vert", "shader.frag");
 
 
-	// GENERATING A TEXTURE
-	unsigned int texture;
-	glGenTextures(1, &texture);
+	// GENERATING FIRST TEXTURE
+	unsigned int texture1;
+	glGenTextures(1, &texture1);
 	// Just like other objects we need to bind it so any subsequent texture commands will configure the currently bound texture
-	glBindTexture(GL_TEXTURE_2D, texture);
+	glBindTexture(GL_TEXTURE_2D, texture1);
 
 	// Set the texture wrapping and filtering options on the currently bound texture object
 	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_REPEAT);
 	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_REPEAT);
-	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR_MIPMAP_LINEAR);
+	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
 	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
 
-	// Load an image
+	// IMAGE LOADING
+	// Flip y axis of image so it is loaded correctly
+	stbi_set_flip_vertically_on_load(true);
+
+	// Load first image
 	// We need the images width and height for generating textures later on
 	int width, height, numberOfColorChannels;
-	unsigned char* image = stbi_load("container.jpg", &width, &height, &numberOfColorChannels, 0);
-	if (image) {
+	unsigned char* image1 = stbi_load("container.jpg", &width, &height, &numberOfColorChannels, 0);
+	if (image1) {
 		// Actually generate texture with the previously loaded image
-		glTexImage2D(GL_TEXTURE_2D, 0, GL_RGB, width, height, 0, GL_RGB, GL_UNSIGNED_BYTE, image);
+		glTexImage2D(GL_TEXTURE_2D, 0, GL_RGB, width, height, 0, GL_RGB, GL_UNSIGNED_BYTE, image1);
 		// Generate mipmaps
 		glGenerateMipmap(GL_TEXTURE_2D);
 	} else {
 		cout << "Failed to load texture" << endl;
 	}
-
 	// Free the image memory
-	stbi_image_free(image);
+	stbi_image_free(image1);
+
+	// GENERATE SECOND TEXTURE
+	unsigned int texture2;
+	glGenTextures(1, &texture2);
+	glBindTexture(GL_TEXTURE_2D, texture2);
+	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_REPEAT);
+	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_REPEAT);
+	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
+	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
+
+	// Load second image
+	unsigned char* image2 = stbi_load("awesomeface.png", &width, &height, &numberOfColorChannels, 0);
+	if (image2) {
+		glTexImage2D(GL_TEXTURE_2D, 0, GL_RGB, width, height, 0, GL_RGBA, GL_UNSIGNED_BYTE, image2);
+		glGenerateMipmap(GL_TEXTURE_2D);
+	} else {
+		cout << "Failed to load texture" << endl;
+	}
+	stbi_image_free(image2);
+
+	// Activate the shader before setting texture uniforms
+	shader.use();
+	// Tell OpenGL to which texture unit each shader sampler belongs to
+	// you can do this manually
+	//glUniform1i(glGetUniformLocation(shader.id, "texture1"), 0);
+	//glUniform1i(glGetUniformLocation(shader.id, "texture2"), 1);
+	// or with the shader helper class
+	shader.setInt("texture1", 0);
+	shader.setInt("texture2", 1);
 
 	// Initialize the render loop
 	while (!glfwWindowShouldClose(window)) {
@@ -165,8 +197,14 @@ int main() {
 		// Actually clear the screen's color (state-using function)
 		glClear(GL_COLOR_BUFFER_BIT);
 
+		// Activate the texture unit first before binding texture
+		// Most graphic drivers set default texture unit to 0 and you can skip this step if you only want to assign 1 texture
+		glActiveTexture(GL_TEXTURE0);
 		// Bind the texture and it will automatically assign it to the fragment shader's sampler
-		glBindTexture(GL_TEXTURE_2D, texture);
+		glBindTexture(GL_TEXTURE_2D, texture1);
+
+		glActiveTexture(GL_TEXTURE1);
+		glBindTexture(GL_TEXTURE_2D, texture2);
 
 		// Activate programm object
 		// Every shader and rendering call after glUseProgram will now use this program object (and thus the shaders)
