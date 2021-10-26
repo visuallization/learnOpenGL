@@ -13,9 +13,10 @@ const char* vertexShaderSource = "#version 330 core\n"
 
 const char* fragmentShaderSource = "#version 330 core\n"
 	"out vec4 FragColor;\n"
+	"uniform vec4 color = vec4(1.0f, 1.0f, 0.2f, 1.0f);"
 	"void main()\n"
 	"{\n"
-	"	FragColor = vec4(1.0f, 0.5f, 0.2f, 1.0f);\n"
+	"	FragColor = color;\n"
 	"}\0";
 
 void resizeViewport(GLFWwindow* window, int width, int height) {
@@ -59,14 +60,19 @@ int main() {
 	// Create the OpenGL viewport
 	glViewport(0, 0, 800, 600);
 
+	// Get the amount of allowed vertex attributes in a shader which is defined by the hardware
+	int numberOfVertexAttributes = 0;
+	glGetIntegerv(GL_MAX_VERTEX_ATTRIBS, &numberOfVertexAttributes);
+	cout << "Maximum number of vertex attributes supported by hardware: " << numberOfVertexAttributes << endl;
+
 	// Register GLFW callbacks after we created the window and before the render loop
 	// Register the resize callback
 	glfwSetFramebufferSizeCallback(window, resizeViewport);
 
 	// Draw meshes in wireframe mode
-	glPolygonMode(GL_FRONT_AND_BACK, GL_LINE);
+	//glPolygonMode(GL_FRONT_AND_BACK, GL_LINE);
 	// Draw meshes in filled mode
-	//glPolygonMode(GL_FRONT_AND_BACK, GL_FILL);
+	glPolygonMode(GL_FRONT_AND_BACK, GL_FILL);
 
 
 	// VERTEX SHADER
@@ -163,6 +169,9 @@ int main() {
 	// Enable the vertex attribute with glEnableVertexAttribArray giving the vertex attribute location as its argument (layout (location=0))
 	glEnableVertexAttribArray(0);
 
+	// Another way to fetch the location of the vertex atrribute in a shader
+	// cout << glGetAttribLocation(shaderProgram, "aPos") << endl;
+
 	// Unbind vertex array
 	glBindVertexArray(0);
 
@@ -181,8 +190,16 @@ int main() {
 		// Activate programm object
 		// Every shader and rendering call after glUseProgram will now use this program object (and thus the shaders)
 		glUseProgram(shaderProgram);
+
+		// Update the uniform color
+		float time = glfwGetTime();
+		float red = sin(time) / 2.0f + 0.5f;
+		int uniformLocation = glGetUniformLocation(shaderProgram, "color");
+		glUniform4f(uniformLocation, red, 0.0f, 0.0f, 1.0f);
+
+		// Draw the rectangle
 		glBindVertexArray(VAO);
-		//glDrawArrays(GL_TRIANGLES, 0, 6);
+		// glDrawArrays(GL_TRIANGLES, 0, 6);
 		// Draw a rectangle using indices
 		glDrawElements(GL_TRIANGLES, 6, GL_UNSIGNED_INT, 0);
 
