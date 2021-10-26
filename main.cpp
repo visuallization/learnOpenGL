@@ -1,6 +1,10 @@
+#include <iostream>
+
 #include <glad/glad.h>
 #include <GLFW/glfw3.h>
-#include <iostream>
+#include <glm/glm.hpp>
+#include <glm/gtc/matrix_transform.hpp>
+#include <glm/gtc/type_ptr.hpp>
 
 #include "shader.h"
 #include "stb_image.h"
@@ -206,9 +210,25 @@ int main() {
 		glActiveTexture(GL_TEXTURE1);
 		glBindTexture(GL_TEXTURE_2D, texture2);
 
+
+		// TRANSFORMATIONS
+		// Create a identity matrix
+		glm::mat4 transformation = glm::mat4(1.0f);
+		// translate
+		transformation = glm::translate(transformation, glm::vec3(0.5f, -0.5f, 0.0f));
+		// rotate
+		transformation = glm::rotate(transformation, (float)glfwGetTime(), glm::vec3(0.0, 0.0, 1.0));
+		// scale
+		transformation = glm::scale(transformation, glm::vec3(0.5, 0.5, 0.5));
+
+
 		// Activate programm object
 		// Every shader and rendering call after glUseProgram will now use this program object (and thus the shaders)
 		shader.use();
+
+		// apply the transformation
+		glUniformMatrix4fv(glGetUniformLocation(shader.id, "transform"), 1, GL_FALSE, glm::value_ptr(transformation));
+
 		// Draw the rectangle
 		glBindVertexArray(VAO);
 		//glDrawArrays(GL_TRIANGLES, 0, 3);
