@@ -3,6 +3,7 @@
 #include <iostream>
 
 #include "shader.h"
+#include "stb_image.h"
 
 using namespace std;
 
@@ -61,12 +62,13 @@ int main() {
 	// Draw meshes in filled mode
 	glPolygonMode(GL_FRONT_AND_BACK, GL_FILL);
 
-	// Define position coordinates and rgb values of the vertices of a triangle in Normalized Device Coordinates (NDC: -1, 1)
+	// Define position coordinates, rgb values and texture coordinates of the vertices of a rectangle in Normalized Device Coordinates (NDC: -1, 1)
 	float vertices[] = {
-		// positions			// colors
-		0.5f, -0.5f, 0.0f,		1.0f, 0.0f, 0.0f,   // bottom right
-		-0.5f, -0.5f, 0.0f,		0.0f, 1.0f, 0.0f,   // bottom left
-		0.0f,  0.5f, 0.0f,		0.0f, 0.0f, 1.0f    // top 
+		// positions			// colors				// texture coords
+		0.5f,  0.5f, 0.0f,		1.0f, 0.0f, 0.0f,		1.0f, 1.0f,   // top right
+		0.5f, -0.5f, 0.0f,		0.0f, 1.0f, 0.0f,		1.0f, 0.0f,   // bottom right
+		-0.5f, -0.5f, 0.0f,		0.0f, 0.0f, 1.0f,		0.0f, 0.0f,   // bottom left
+		-0.5f,  0.5f, 0.0f,		1.0f, 1.0f, 0.0f,		0.0f, 1.0f    // top left 
 	};
 	// Define drawing indeces to prevent defining redundant vertices
 	unsigned int indices[] = {
@@ -100,14 +102,19 @@ int main() {
 	// Tell OpenGL how it should interpret the vertex data
 	// We have to manually specify what part of our input data goes to which vertex attribute in the vertex shader
 	// Define the layout of the position attribute
-	glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, 6 * sizeof(float), (void*)0);
+	glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, 8 * sizeof(float), (void*)0);
 	// Enable the position vertex attribute with glEnableVertexAttribArray giving the vertex attribute location as its argument (layout (location=0))
 	glEnableVertexAttribArray(0);
 
 	// Define the layout of the color attribute
-	glVertexAttribPointer(1, 3, GL_FLOAT, GL_FALSE, 6 * sizeof(float), (void*)(3 * sizeof(float)));
+	glVertexAttribPointer(1, 3, GL_FLOAT, GL_FALSE, 8 * sizeof(float), (void*)(3 * sizeof(float)));
 	// Enable the color vertex attribute
 	glEnableVertexAttribArray(1);
+
+	// Define the layout of the texture coordinates
+	glVertexAttribPointer(2, 2, GL_FLOAT, GL_FALSE, 8 * sizeof(float), (void*)(6 * sizeof(float)));
+	// Enable the texture coordinates attribute
+	glEnableVertexAttribArray(2);
 
 	// Another way to fetch the location of the vertex atrribute in a shader
 	// cout << glGetAttribLocation(shaderProgram, "aPos") << endl;
@@ -115,7 +122,37 @@ int main() {
 	// Unbind vertex array
 	glBindVertexArray(0);
 
+	// LOAD VERTEX AND FRAGMENT SHADER
 	Shader shader("shader.vert", "shader.frag");
+
+
+	// GENERATING A TEXTURE
+	unsigned int texture;
+	glGenTextures(1, &texture);
+	// Just like other objects we need to bind it so any subsequent texture commands will configure the currently bound texture
+	glBindTexture(GL_TEXTURE_2D, texture);
+
+	// Set the texture wrapping and filtering options on the currently bound texture object
+	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_REPEAT);
+	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_REPEAT);
+	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR_MIPMAP_LINEAR);
+	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
+
+	// Load an image
+	// We need the images width and height for generating textures later on
+	int width, height, numberOfColorChannels;
+	unsigned char* image = stbi_load("container.jpg", &width, &height, &numberOfColorChannels, 0);
+	if (image) {
+		// Actually generate texture with the previously loaded image
+		glTexImage2D(GL_TEXTURE_2D, 0, GL_RGB, width, height, 0, GL_RGB, GL_UNSIGNED_BYTE, image);
+		// Generate mipmaps
+		glGenerateMipmap(GL_TEXTURE_2D);
+	} else {
+		cout << "Failed to load texture" << endl;
+	}
+
+	// Free the image memory
+	stbi_image_free(image);
 
 	// Initialize the render loop
 	while (!glfwWindowShouldClose(window)) {
@@ -128,17 +165,17 @@ int main() {
 		// Actually clear the screen's color (state-using function)
 		glClear(GL_COLOR_BUFFER_BIT);
 
+		// Bind the texture and it will automatically assign it to the fragment shader's sampler
+		glBindTexture(GL_TEXTURE_2D, texture);
+
 		// Activate programm object
 		// Every shader and rendering call after glUseProgram will now use this program object (and thus the shaders)
 		shader.use();
-
-
-
 		// Draw the rectangle
 		glBindVertexArray(VAO);
-		glDrawArrays(GL_TRIANGLES, 0, 3);
+		//glDrawArrays(GL_TRIANGLES, 0, 3);
 		// Draw a rectangle using indices
-		//glDrawElements(GL_TRIANGLES, 6, GL_UNSIGNED_INT, 0);
+		glDrawElements(GL_TRIANGLES, 6, GL_UNSIGNED_INT, 0);
 
 		// Swap the 2D color buffer
 		// front buffer displays the rendered image
