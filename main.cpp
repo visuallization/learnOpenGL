@@ -201,6 +201,10 @@ int main() {
 		// Actually clear the screen's color (state-using function)
 		glClear(GL_COLOR_BUFFER_BIT);
 
+		// Activate programm object
+		// Every shader and rendering call after glUseProgram will now use this program object (and thus the shaders)
+		//shader.use();
+
 		// Activate the texture unit first before binding texture
 		// Most graphic drivers set default texture unit to 0 and you can skip this step if you only want to assign 1 texture
 		glActiveTexture(GL_TEXTURE0);
@@ -210,8 +214,11 @@ int main() {
 		glActiveTexture(GL_TEXTURE1);
 		glBindTexture(GL_TEXTURE_2D, texture2);
 
+		glBindVertexArray(VAO);
+
 
 		// TRANSFORMATIONS
+		// First Mesh
 		// Create a identity matrix
 		glm::mat4 transformation = glm::mat4(1.0f);
 		// translate
@@ -220,20 +227,22 @@ int main() {
 		transformation = glm::rotate(transformation, (float)glfwGetTime(), glm::vec3(0.0, 0.0, 1.0));
 		// scale
 		transformation = glm::scale(transformation, glm::vec3(0.5, 0.5, 0.5));
-
-
-		// Activate programm object
-		// Every shader and rendering call after glUseProgram will now use this program object (and thus the shaders)
-		shader.use();
-
 		// apply the transformation
-		glUniformMatrix4fv(glGetUniformLocation(shader.id, "transform"), 1, GL_FALSE, glm::value_ptr(transformation));
-
-		// Draw the rectangle
-		glBindVertexArray(VAO);
-		//glDrawArrays(GL_TRIANGLES, 0, 3);
+		unsigned int transformLocation = glGetUniformLocation(shader.id, "transform");
+		glUniformMatrix4fv(transformLocation, 1, GL_FALSE, glm::value_ptr(transformation));
 		// Draw a rectangle using indices
 		glDrawElements(GL_TRIANGLES, 6, GL_UNSIGNED_INT, 0);
+
+		// Second Mesh
+		// reset transformation to identity matrix
+		transformation = glm::mat4(1.0f);
+		transformation = glm::translate(transformation, glm::vec3(-0.5f, 0.5f, 0.0f));
+		float scale = sin(glfwGetTime());
+		transformation = glm::scale(transformation, glm::vec3(scale, scale, scale));
+		// this time take alternatively the matrix value array's first element as its memory pointer value
+		glUniformMatrix4fv(transformLocation, 1, GL_FALSE, &transformation[0][0]);
+		glDrawElements(GL_TRIANGLES, 6, GL_UNSIGNED_INT, 0);
+
 
 		// Swap the 2D color buffer
 		// front buffer displays the rendered image
@@ -243,6 +252,11 @@ int main() {
 		// updates the window state and calls the corresponding callback functions.
 		glfwPollEvents();
 	}
+
+	// optional: deallocate all ressources once they have outlived their purpose
+	glDeleteVertexArrays(1, &VAO);
+	glDeleteBuffers(1, &VBO);
+	glDeleteBuffers(1, &EBO);
 
 	// clean up all the GLFW resources and properly exit the application
 	glfwTerminate();
