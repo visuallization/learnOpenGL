@@ -2,27 +2,9 @@
 #include <GLFW/glfw3.h>
 #include <iostream>
 
+#include "shader.h"
+
 using namespace std;
-
-const char* vertexShaderSource = "#version 330 core\n"
-	"layout (location = 0) in vec3 aPos;\n"
-	"layout (location = 1) in vec3 aColor;\n"
-	"\n"
-	"out vec3 color;"
-	"void main()\n"
-	"{\n"
-	"   gl_Position = vec4(aPos, 1.0);\n"
-	"	color = aColor;\n"
-	"}\0";
-
-const char* fragmentShaderSource = "#version 330 core\n"
-	"in vec3 color;\n"
-	"\n"
-	"out vec4 FragColor;\n"
-	"void main()\n"
-	"{\n"
-	"	FragColor = vec4(color, 1.0);\n"
-	"}\0";
 
 void resizeViewport(GLFWwindow* window, int width, int height) {
 	glViewport(0, 0, width, height);
@@ -79,59 +61,6 @@ int main() {
 	// Draw meshes in filled mode
 	glPolygonMode(GL_FRONT_AND_BACK, GL_FILL);
 
-
-	// VERTEX SHADER
-	// Create a shader object and reference it by id
-	unsigned int vertexShader;
-	vertexShader = glCreateShader(GL_VERTEX_SHADER);
-	// Attach the shader source code to the shader object and compile the shader
-	glShaderSource(vertexShader, 1, &vertexShaderSource, NULL);
-	glCompileShader(vertexShader);
-
-	// Check if shader compiles correctly
-	int success;
-	char infoLog[512];
-	glGetShaderiv(vertexShader, GL_COMPILE_STATUS, &success);
-	if (!success) {
-		glGetShaderInfoLog(vertexShader, 512, NULL, infoLog);
-		cout << "ERROR::SHADER::VERTEX::COMPILATION_FAILED\n" << infoLog << endl;
-	}
-
-	// FRAGMENT SHADER
-	unsigned int fragmentShader;
-	fragmentShader = glCreateShader(GL_FRAGMENT_SHADER);
-	glShaderSource(fragmentShader, 1, &fragmentShaderSource, NULL);
-	glCompileShader(fragmentShader);
-
-	glGetShaderiv(fragmentShader, GL_COMPILE_STATUS, &success);
-	if (!success) {
-		glGetShaderInfoLog(fragmentShader, 512, NULL, infoLog);
-		cout << "ERROR::SHADER::VERTEX::COMPILATION_FAILED\n" << infoLog << endl;
-	}
-
-	// SHADER PROGRAM
-	// To use the recently compiled shaders we have to link them to a shader program object and then activate this shader program when rendering objects
-	// When linking the shaders into a program it links the outputs of each shader to the inputs of the next shader.
-	unsigned int shaderProgram;
-	shaderProgram = glCreateProgram();
-	// Attach the shaders to the program
-	glAttachShader(shaderProgram, vertexShader);
-	glAttachShader(shaderProgram, fragmentShader);
-	// Link the shaders
-	glLinkProgram(shaderProgram);
-
-	// Check if linking a shader programm compiles correctly
-	glGetProgramiv(shaderProgram, GL_LINK_STATUS, &success);
-	if (!success) {
-		glGetProgramInfoLog(shaderProgram, 512, NULL, infoLog);
-		cout << "ERROR::SHADER::LINKING::COMPILATION_FAILED\n" << infoLog << endl;
-	}
-
-	// Delete the shader objects once they are linked into the program object; we no longer need them anymore
-	glDeleteShader(vertexShader);
-	glDeleteShader(fragmentShader);
-
-
 	// Define position coordinates and rgb values of the vertices of a triangle in Normalized Device Coordinates (NDC: -1, 1)
 	float vertices[] = {
 		// positions			// colors
@@ -186,6 +115,7 @@ int main() {
 	// Unbind vertex array
 	glBindVertexArray(0);
 
+	Shader shader("shader.vert", "shader.frag");
 
 	// Initialize the render loop
 	while (!glfwWindowShouldClose(window)) {
@@ -200,7 +130,9 @@ int main() {
 
 		// Activate programm object
 		// Every shader and rendering call after glUseProgram will now use this program object (and thus the shaders)
-		glUseProgram(shaderProgram);
+		shader.use();
+
+
 
 		// Draw the rectangle
 		glBindVertexArray(VAO);
