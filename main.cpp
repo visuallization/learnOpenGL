@@ -6,17 +6,22 @@ using namespace std;
 
 const char* vertexShaderSource = "#version 330 core\n"
 	"layout (location = 0) in vec3 aPos;\n"
+	"layout (location = 1) in vec3 aColor;\n"
+	"\n"
+	"out vec3 color;"
 	"void main()\n"
 	"{\n"
-	"   gl_Position = vec4(aPos.x, aPos.y, aPos.z, 1.0);\n"
+	"   gl_Position = vec4(aPos, 1.0);\n"
+	"	color = aColor;\n"
 	"}\0";
 
 const char* fragmentShaderSource = "#version 330 core\n"
+	"in vec3 color;\n"
+	"\n"
 	"out vec4 FragColor;\n"
-	"uniform vec4 color = vec4(1.0f, 1.0f, 0.2f, 1.0f);"
 	"void main()\n"
 	"{\n"
-	"	FragColor = color;\n"
+	"	FragColor = vec4(color, 1.0);\n"
 	"}\0";
 
 void resizeViewport(GLFWwindow* window, int width, int height) {
@@ -127,12 +132,12 @@ int main() {
 	glDeleteShader(fragmentShader);
 
 
-	// Define vertices of a rectangle in Normalized Device Coordinates (NDC: -1, 1)
+	// Define position coordinates and rgb values of the vertices of a triangle in Normalized Device Coordinates (NDC: -1, 1)
 	float vertices[] = {
-		0.5f,  0.5f, 0.0f,	// top right
-		0.5f, -0.5f, 0.0f,  // bottom right
-		-0.5f, -0.5f, 0.0f, // bottom left
-		-0.5f,  0.5f, 0.0f  // top left 
+		// positions			// colors
+		0.5f, -0.5f, 0.0f,		1.0f, 0.0f, 0.0f,   // bottom right
+		-0.5f, -0.5f, 0.0f,		0.0f, 1.0f, 0.0f,   // bottom left
+		0.0f,  0.5f, 0.0f,		0.0f, 0.0f, 1.0f    // top 
 	};
 	// Define drawing indeces to prevent defining redundant vertices
 	unsigned int indices[] = {
@@ -165,9 +170,15 @@ int main() {
 	// 2. Set the vertex attributes pointers
 	// Tell OpenGL how it should interpret the vertex data
 	// We have to manually specify what part of our input data goes to which vertex attribute in the vertex shader
-	glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, 3 * sizeof(float), (void*)0);
-	// Enable the vertex attribute with glEnableVertexAttribArray giving the vertex attribute location as its argument (layout (location=0))
+	// Define the layout of the position attribute
+	glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, 6 * sizeof(float), (void*)0);
+	// Enable the position vertex attribute with glEnableVertexAttribArray giving the vertex attribute location as its argument (layout (location=0))
 	glEnableVertexAttribArray(0);
+
+	// Define the layout of the color attribute
+	glVertexAttribPointer(1, 3, GL_FLOAT, GL_FALSE, 6 * sizeof(float), (void*)(3 * sizeof(float)));
+	// Enable the color vertex attribute
+	glEnableVertexAttribArray(1);
 
 	// Another way to fetch the location of the vertex atrribute in a shader
 	// cout << glGetAttribLocation(shaderProgram, "aPos") << endl;
@@ -191,17 +202,11 @@ int main() {
 		// Every shader and rendering call after glUseProgram will now use this program object (and thus the shaders)
 		glUseProgram(shaderProgram);
 
-		// Update the uniform color
-		float time = glfwGetTime();
-		float red = sin(time) / 2.0f + 0.5f;
-		int uniformLocation = glGetUniformLocation(shaderProgram, "color");
-		glUniform4f(uniformLocation, red, 0.0f, 0.0f, 1.0f);
-
 		// Draw the rectangle
 		glBindVertexArray(VAO);
-		// glDrawArrays(GL_TRIANGLES, 0, 6);
+		glDrawArrays(GL_TRIANGLES, 0, 3);
 		// Draw a rectangle using indices
-		glDrawElements(GL_TRIANGLES, 6, GL_UNSIGNED_INT, 0);
+		//glDrawElements(GL_TRIANGLES, 6, GL_UNSIGNED_INT, 0);
 
 		// Swap the 2D color buffer
 		// front buffer displays the rendered image
