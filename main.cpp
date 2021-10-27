@@ -11,6 +11,10 @@
 
 using namespace std;
 
+// settings
+const unsigned int SCREEN_WIDTH = 800;
+const unsigned int SCREEN_HEIGHT = 600;
+
 void resizeViewport(GLFWwindow* window, int width, int height) {
 	glViewport(0, 0, width, height);
 }
@@ -32,7 +36,7 @@ int main() {
 	glfwWindowHint(GLFW_OPENGL_PROFILE, GLFW_OPENGL_CORE_PROFILE);
 	
 	// Create a new window object (OS dependent)
-	GLFWwindow* window = glfwCreateWindow(800, 600, "LearnOpenGL", NULL, NULL);
+	GLFWwindow* window = glfwCreateWindow(SCREEN_WIDTH, SCREEN_HEIGHT, "LearnOpenGL", NULL, NULL);
 
 	if (window == NULL) {
 		cout << "Failed to create GLFW window!" << endl;
@@ -50,7 +54,7 @@ int main() {
 	}
 
 	// Create the OpenGL viewport
-	glViewport(0, 0, 800, 600);
+	glViewport(0, 0, SCREEN_WIDTH, SCREEN_HEIGHT);
 
 	// Get the amount of allowed vertex attributes in a shader which is defined by the hardware
 	int numberOfVertexAttributes = 0;
@@ -192,19 +196,16 @@ int main() {
 
 	// Initialize the render loop
 	while (!glfwWindowShouldClose(window)) {
-		// Handle input
+		// INPUT
 		handleInput(window);
 
 		// RENDERING LOGIC
 		// Set the color which glClear will (state-setting function)
-		glClearColor(0.2f,0.3f,0.3f, 1.0f);
+		glClearColor(0.2f, 0.3f, 0.3f, 1.0f);
 		// Actually clear the screen's color (state-using function)
 		glClear(GL_COLOR_BUFFER_BIT);
 
-		// Activate programm object
-		// Every shader and rendering call after glUseProgram will now use this program object (and thus the shaders)
-		//shader.use();
-
+		// TEXTURES
 		// Activate the texture unit first before binding texture
 		// Most graphic drivers set default texture unit to 0 and you can skip this step if you only want to assign 1 texture
 		glActiveTexture(GL_TEXTURE0);
@@ -214,33 +215,32 @@ int main() {
 		glActiveTexture(GL_TEXTURE1);
 		glBindTexture(GL_TEXTURE_2D, texture2);
 
-		glBindVertexArray(VAO);
+
+		// Activate programm object
+		// Every shader and rendering call after glUseProgram will now use this program object (and thus the shaders)
+		shader.use();
 
 
 		// TRANSFORMATIONS
-		// First Mesh
-		// Create a identity matrix
-		glm::mat4 transformation = glm::mat4(1.0f);
-		// translate
-		transformation = glm::translate(transformation, glm::vec3(0.5f, -0.5f, 0.0f));
-		// rotate
-		transformation = glm::rotate(transformation, (float)glfwGetTime(), glm::vec3(0.0, 0.0, 1.0));
-		// scale
-		transformation = glm::scale(transformation, glm::vec3(0.5, 0.5, 0.5));
-		// apply the transformation
-		unsigned int transformLocation = glGetUniformLocation(shader.id, "transform");
-		glUniformMatrix4fv(transformLocation, 1, GL_FALSE, glm::value_ptr(transformation));
-		// Draw a rectangle using indices
-		glDrawElements(GL_TRIANGLES, 6, GL_UNSIGNED_INT, 0);
+		// Create Model Matrix to transform local space to world space
+		glm::mat4 model = glm::mat4(1.0f);
+		model = glm::rotate(model, glm::radians(-55.0f), glm::vec3(1.0f, 0.0f, 0.0f));
+		// Create View Matrix to transform world space to view (camera) space
+		glm::mat4 view = glm::mat4(1.0f);
+		view = glm::translate(view, glm::vec3(0.0f, 0.0f, -3.0f));
+		// Create Porjection Matrixs to transform view space to clip space
+		glm::mat4 projection = glm::mat4(1.0f);
+		projection = glm::perspective(glm::radians(45.0f), (float)SCREEN_WIDTH / (float)SCREEN_HEIGHT, 0.1f, 100.0f);
+		// Send the matrices to the shader
+		// Do it manually
+		glUniformMatrix4fv(glGetUniformLocation(shader.id, "model"), 1, GL_FALSE, glm::value_ptr(model));
+		glUniformMatrix4fv(glGetUniformLocation(shader.id, "view"), 1, GL_FALSE, glm::value_ptr(view));
+		// or with our helper class
+		shader.setMat4("projection", projection);
 
-		// Second Mesh
-		// reset transformation to identity matrix
-		transformation = glm::mat4(1.0f);
-		transformation = glm::translate(transformation, glm::vec3(-0.5f, 0.5f, 0.0f));
-		float scale = sin(glfwGetTime());
-		transformation = glm::scale(transformation, glm::vec3(scale, scale, scale));
-		// this time take alternatively the matrix value array's first element as its memory pointer value
-		glUniformMatrix4fv(transformLocation, 1, GL_FALSE, &transformation[0][0]);
+		
+		// DRAW A RECTANGLE
+		glBindVertexArray(VAO);
 		glDrawElements(GL_TRIANGLES, 6, GL_UNSIGNED_INT, 0);
 
 
