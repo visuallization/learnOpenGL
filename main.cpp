@@ -138,7 +138,7 @@ int main() {
 	};
 
 	// Define the position of the light source cube
-	glm::vec3 lightPostion(0.0f, 0.0f, 0.0f);
+	glm::vec3 lightPostion(0.0f, 0.0f, -1.0f);
 
 	// CREATE A BOX
 	// Bind Vertex Array Object
@@ -280,6 +280,8 @@ int main() {
 		shader.setVec3("objectColor", 1.0f, 0.5f, 0.31f);
 		shader.setVec3("lightColor", 1.0f, 1.0f, 1.0f);
 		shader.setVec3("lightPosition", lightPostion);
+		// The camera position is the inverse of the view matrix
+		shader.setVec3("cameraPosition", glm::vec3(0.0f, 0.0f, 3.0f));
 
 		// TRANSFORMATIONS
 		// Create Model Matrix to transform the model's local space to world space

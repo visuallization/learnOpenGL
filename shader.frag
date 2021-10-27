@@ -14,7 +14,10 @@ uniform vec3 lightColor;
 
 uniform vec3 lightPosition;
 
+uniform vec3 cameraPosition;
+
 void main() {
+    // We do lighting currently in world space but is more common to do it in view space as you get the view/camera position for free. It is always (0, 0, 0) in view space.
     // ambient lighting
     float ambientStrength = 0.2;
     vec3 ambient = ambientStrength * lightColor;
@@ -25,7 +28,16 @@ void main() {
     // calculate the light angle and multiply it with the light color
     vec3 diffuse = max(dot(norm, lightDirection), 0.0) * lightColor;
 
+    // specular lighting
+    float specularStrength = 0.5;
+    int shininess = 32;
+    vec3 viewDirection = normalize(cameraPosition - fragPosition);
+    vec3 reflectDirection = reflect(-lightDirection, norm);
+    float spec = pow(max(dot(viewDirection, reflectDirection), 0.0), shininess);
+    vec3 specular = specularStrength * spec * lightColor;
+
+    // create phong lighting
+    vec3 lighting = (ambient + diffuse + specular) * objectColor;
     // multiply lighting and texture
-    vec3 lighting = (ambient + diffuse) * objectColor;
     fragColor = vec4(lighting, 1.0) * mix(texture(texture1, texCoord), texture(texture2, texCoord), 0.2);
 }
