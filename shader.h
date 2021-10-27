@@ -115,6 +115,9 @@ public:
 	void setFloat(const string& name, float value) const {
 		glUniform1f(glGetUniformLocation(id, name.c_str()), value);
 	}
+	void setVec3(const string& name, glm::vec3 value) const {
+		glUniform3fv(glGetUniformLocation(id, name.c_str()), 1, glm::value_ptr(value));
+	}
 	void setVec3(const string& name, float x, float y, float z) const {
 		glUniform3f(glGetUniformLocation(id, name.c_str()), x, y, z);
 	}

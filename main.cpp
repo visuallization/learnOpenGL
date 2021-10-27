@@ -79,47 +79,48 @@ int main() {
 
 	// Define position coordinates and texture coordinates of the vertices a cube
 	float vertices[] = {
-		-0.5f, -0.5f, -0.5f,  0.0f, 0.0f,
-		0.5f, -0.5f, -0.5f,  1.0f, 0.0f,
-		0.5f,  0.5f, -0.5f,  1.0f, 1.0f,
-		0.5f,  0.5f, -0.5f,  1.0f, 1.0f,
-		-0.5f,  0.5f, -0.5f,  0.0f, 1.0f,
-		-0.5f, -0.5f, -0.5f,  0.0f, 0.0f,
+		// position coord			// texture coord		// normal coord 
+		-0.5f,	-0.5f,	-0.5f,		0.0f, 0.0f,				0.0f,  0.0f, -1.0f,
+		 0.5f,	-0.5f,	-0.5f,		1.0f, 0.0f,				0.0f,  0.0f, -1.0f,
+		 0.5f,	 0.5f,	-0.5f,		1.0f, 1.0f,				0.0f,  0.0f, -1.0f,
+		 0.5f,	 0.5f,	-0.5f,		1.0f, 1.0f,				0.0f,  0.0f, -1.0f,
+		-0.5f,   0.5f,	-0.5f,		0.0f, 1.0f,				0.0f,  0.0f, -1.0f,
+		-0.5f,	-0.5f,	-0.5f,		0.0f, 0.0f,				0.0f,  0.0f, -1.0f,
 
-		-0.5f, -0.5f,  0.5f,  0.0f, 0.0f,
-		0.5f, -0.5f,  0.5f,  1.0f, 0.0f,
-		0.5f,  0.5f,  0.5f,  1.0f, 1.0f,
-		0.5f,  0.5f,  0.5f,  1.0f, 1.0f,
-		-0.5f,  0.5f,  0.5f,  0.0f, 1.0f,
-		-0.5f, -0.5f,  0.5f,  0.0f, 0.0f,
+		-0.5f,	-0.5f,	0.5f,		0.0f, 0.0f,				0.0f,  0.0f, 1.0f,
+		 0.5f,	-0.5f,  0.5f,		1.0f, 0.0f,				0.0f,  0.0f, 1.0f,
+		 0.5f,	 0.5f,	0.5f,		1.0f, 1.0f,				0.0f,  0.0f, 1.0f,
+		 0.5f,	 0.5f,	0.5f,		1.0f, 1.0f,				0.0f,  0.0f, 1.0f,
+		-0.5f,   0.5f,	0.5f,		0.0f, 1.0f,				0.0f,  0.0f, 1.0f,
+		-0.5f,	-0.5f,  0.5f,		0.0f, 0.0f,				0.0f,  0.0f, 1.0f,
 
-		-0.5f,  0.5f,  0.5f,  1.0f, 0.0f,
-		-0.5f,  0.5f, -0.5f,  1.0f, 1.0f,
-		-0.5f, -0.5f, -0.5f,  0.0f, 1.0f,
-		-0.5f, -0.5f, -0.5f,  0.0f, 1.0f,
-		-0.5f, -0.5f,  0.5f,  0.0f, 0.0f,
-		-0.5f,  0.5f,  0.5f,  1.0f, 0.0f,
+		-0.5f,   0.5f,	 0.5f,		1.0f, 0.0f,				-1.0f,  0.0f,  0.0f,
+		-0.5f,   0.5f,	-0.5f,		1.0f, 1.0f,				-1.0f,  0.0f,  0.0f,
+		-0.5f,	-0.5f,	-0.5f,		0.0f, 1.0f,				-1.0f,  0.0f,  0.0f,
+		-0.5f,	-0.5f,	-0.5f,		0.0f, 1.0f,				-1.0f,  0.0f,  0.0f,
+		-0.5f,	-0.5f,	 0.5f,		0.0f, 0.0f,				-1.0f,  0.0f,  0.0f,
+		-0.5f,   0.5f,	 0.5f,		1.0f, 0.0f,				-1.0f,  0.0f,  0.0f,
 
-		0.5f,  0.5f,  0.5f,  1.0f, 0.0f,
-		0.5f,  0.5f, -0.5f,  1.0f, 1.0f,
-		0.5f, -0.5f, -0.5f,  0.0f, 1.0f,
-		0.5f, -0.5f, -0.5f,  0.0f, 1.0f,
-		0.5f, -0.5f,  0.5f,  0.0f, 0.0f,
-		0.5f,  0.5f,  0.5f,  1.0f, 0.0f,
+		 0.5f,	 0.5f,	 0.5f,		1.0f, 0.0f,				1.0f,  0.0f,  0.0f,
+		 0.5f,	 0.5f,  -0.5f,		1.0f, 1.0f,				1.0f,  0.0f,  0.0f,
+		 0.5f,	-0.5f,  -0.5f,		0.0f, 1.0f,				1.0f,  0.0f,  0.0f,
+		 0.5f,	-0.5f,  -0.5f,		0.0f, 1.0f,				1.0f,  0.0f,  0.0f,
+		 0.5f,	-0.5f,   0.5f,		0.0f, 0.0f,				1.0f,  0.0f,  0.0f,
+		 0.5f,	 0.5f,   0.5f,		1.0f, 0.0f,				1.0f,  0.0f,  0.0f,
 
-		-0.5f, -0.5f, -0.5f,  0.0f, 1.0f,
-		0.5f, -0.5f, -0.5f,  1.0f, 1.0f,
-		0.5f, -0.5f,  0.5f,  1.0f, 0.0f,
-		0.5f, -0.5f,  0.5f,  1.0f, 0.0f,
-		-0.5f, -0.5f,  0.5f,  0.0f, 0.0f,
-		-0.5f, -0.5f, -0.5f,  0.0f, 1.0f,
+		-0.5f,	-0.5f,	-0.5f,		0.0f, 1.0f,				0.0f, -1.0f,  0.0f,
+		 0.5f,	-0.5f,	-0.5f,		1.0f, 1.0f,				0.0f, -1.0f,  0.0f,
+		 0.5f,	-0.5f,   0.5f,		1.0f, 0.0f,				0.0f, -1.0f,  0.0f,
+		 0.5f,	-0.5f,   0.5f,		1.0f, 0.0f,				0.0f, -1.0f,  0.0f,
+		-0.5f,	-0.5f,   0.5f,		0.0f, 0.0f,				0.0f, -1.0f,  0.0f,
+		-0.5f,	-0.5f,	-0.5f,		0.0f, 1.0f,				0.0f, -1.0f,  0.0f,
 
-		-0.5f,  0.5f, -0.5f,  0.0f, 1.0f,
-		0.5f,  0.5f, -0.5f,  1.0f, 1.0f,
-		0.5f,  0.5f,  0.5f,  1.0f, 0.0f,
-		0.5f,  0.5f,  0.5f,  1.0f, 0.0f,
-		-0.5f,  0.5f,  0.5f,  0.0f, 0.0f,
-		-0.5f,  0.5f, -0.5f,  0.0f, 1.0f
+		-0.5f,	 0.5f,	-0.5f,		0.0f, 1.0f,				0.0f,  1.0f,  0.0f,
+		 0.5f,   0.5f,	-0.5f,		1.0f, 1.0f,				0.0f,  1.0f,  0.0f,
+		 0.5f,   0.5f,   0.5f,		1.0f, 0.0f,				0.0f,  1.0f,  0.0f,
+		 0.5f,   0.5f,   0.5f,		1.0f, 0.0f,				0.0f,  1.0f,  0.0f,
+		-0.5f,   0.5f,   0.5f,		0.0f, 0.0f,				0.0f,  1.0f,  0.0f,
+		-0.5f,   0.5f,	-0.5f,		0.0f, 1.0f,				0.0f,  1.0f,  0.0f,
 	};
 
 	// Define the positions of multiple cubes
@@ -161,20 +162,25 @@ int main() {
 	// We have to manually specify what part of our input data goes to which vertex attribute in the vertex shader
 
 	// Define the layout of the position attribute
-	glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, 5 * sizeof(float), (void*)0);
+	glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, 8 * sizeof(float), (void*)0);
 	// Enable the position vertex attribute with glEnableVertexAttribArray giving the vertex attribute location as its argument (layout (location=0))
 	glEnableVertexAttribArray(0);
 
 	// Define the layout of the texture coordinates attribute
-	glVertexAttribPointer(1, 2, GL_FLOAT, GL_FALSE, 5 * sizeof(float), (void*)(3 * sizeof(float)));
+	glVertexAttribPointer(1, 2, GL_FLOAT, GL_FALSE, 8 * sizeof(float), (void*)(3 * sizeof(float)));
 	// Enable the texture coordinates attribute
 	glEnableVertexAttribArray(1);
+
+	// Define the layout of the normal coordinates attribute
+	glVertexAttribPointer(2, 3, GL_FLOAT, GL_FALSE, 8 * sizeof(float), (void*)(5 * sizeof(float)));
+	// Enable the normal coordinates attribute
+	glEnableVertexAttribArray(2);
 
 	// Another way to fetch the location of the vertex atrribute in a shader
 	// cout << glGetAttribLocation(shaderProgram, "aPos") << endl;
 
 	// Unbind vertex array
-	//glBindVertexArray(0);
+	// glBindVertexArray(0);
 
 
 	// GENERATING FIRST TEXTURE
@@ -240,7 +246,7 @@ int main() {
 	glBindVertexArray(lightVAO);
 	// use the already created cube buffer for the light
 	glBindBuffer(GL_ARRAY_BUFFER, VBO);
-	glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, 5 * sizeof(float), (void*)0);
+	glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, 8 * sizeof(float), (void*)0);
 	glEnableVertexAttribArray(0);
 
 	// Initialize the render loop
@@ -270,9 +276,10 @@ int main() {
 		// Activate shader programm object for the cubes
 		// Every shader and rendering call after glUseProgram will now use this program object (and thus the shaders)
 		shader.use();
-		// Setup object & lighting colors
+		// Setup object, lighting colors and position
 		shader.setVec3("objectColor", 1.0f, 0.5f, 0.31f);
 		shader.setVec3("lightColor", 1.0f, 1.0f, 1.0f);
+		shader.setVec3("lightPosition", lightPostion);
 
 		// TRANSFORMATIONS
 		// Create Model Matrix to transform the model's local space to world space
