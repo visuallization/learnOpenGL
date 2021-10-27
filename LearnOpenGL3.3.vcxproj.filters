@@ -46,6 +46,12 @@
     <None Include="shader.frag">
       <Filter>Shaders</Filter>
     </None>
+    <None Include="light.vert">
+      <Filter>Shaders</Filter>
+    </None>
+    <None Include="light.frag">
+      <Filter>Shaders</Filter>
+    </None>
   </ItemGroup>
   <ItemGroup>
     <Image Include="container.jpg">
