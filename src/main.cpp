@@ -74,8 +74,8 @@ int main() {
 	glEnable(GL_DEPTH_TEST);
 
 	// BUILD VERTEX AND FRAGMENT SHADERS
-	Shader shader("shader.vert", "shader.frag");
-	Shader lightShader("light.vert", "light.frag");
+	Shader shader("shaders/shader.vert", "shaders/shader.frag");
+	Shader lightShader("shaders/light.vert", "shaders/light.frag");
 
 	// Define position coordinates and texture coordinates of the vertices a cube
 	float vertices[] = {
@@ -202,7 +202,7 @@ int main() {
 	// Load first image
 	// We need the images width and height for generating textures later on
 	int width, height, numberOfColorChannels;
-	unsigned char* image1 = stbi_load("container.jpg", &width, &height, &numberOfColorChannels, 0);
+	unsigned char* image1 = stbi_load("resources/textures/container.jpg", &width, &height, &numberOfColorChannels, 0);
 	if (image1) {
 		// Actually generate texture with the previously loaded image
 		glTexImage2D(GL_TEXTURE_2D, 0, GL_RGB, width, height, 0, GL_RGB, GL_UNSIGNED_BYTE, image1);
@@ -224,7 +224,7 @@ int main() {
 	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
 
 	// Load second image
-	unsigned char* image2 = stbi_load("awesomeface.png", &width, &height, &numberOfColorChannels, 0);
+	unsigned char* image2 = stbi_load("resources/textures/awesomeface.png", &width, &height, &numberOfColorChannels, 0);
 	if (image2) {
 		glTexImage2D(GL_TEXTURE_2D, 0, GL_RGB, width, height, 0, GL_RGBA, GL_UNSIGNED_BYTE, image2);
 		glGenerateMipmap(GL_TEXTURE_2D);

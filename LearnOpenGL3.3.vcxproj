@@ -145,23 +145,23 @@
     </Link>
   </ItemDefinitionGroup>
   <ItemGroup>
-    <ClCompile Include="glad.c" />
-    <ClCompile Include="main.cpp" />
-    <ClCompile Include="stb_image.cpp" />
-  </ItemGroup>
-  <ItemGroup>
-    <ClInclude Include="shader.h" />
-    <ClInclude Include="stb_image.h" />
-  </ItemGroup>
-  <ItemGroup>
-    <None Include="light.frag" />
-    <None Include="light.vert" />
-    <None Include="shader.frag" />
-    <None Include="shader.vert" />
-  </ItemGroup>
-  <ItemGroup>
     <Image Include="awesomeface.png" />
     <Image Include="container.jpg" />
+  </ItemGroup>
+  <ItemGroup>
+    <None Include="shaders\light.frag" />
+    <None Include="shaders\light.vert" />
+    <None Include="shaders\shader.frag" />
+    <None Include="shaders\shader.vert" />
+  </ItemGroup>
+  <ItemGroup>
+    <ClCompile Include="src\glad.c" />
+    <ClCompile Include="src\main.cpp" />
+    <ClCompile Include="src\stb_image.cpp" />
+  </ItemGroup>
+  <ItemGroup>
+    <ClInclude Include="src\shader.h" />
+    <ClInclude Include="src\stb_image.h" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
   <ImportGroup Label="ExtensionTargets">

@@ -1,6 +1,6 @@
 # Learn OpenGL
 
-![Screenshot of the OpenGl application](Screenshot_0.jpg)
+![Screenshot of the OpenGl application](resources/screenshots/Screenshot_0.jpg)
 
 This repo is my personal playground for learning OpenGL.
 I follow along the great learning ressources on [learnopengl.com](https://learnopengl.com/) by Joey de Vries.
@@ -12,9 +12,9 @@ If you are also working on Windows and in Visual Studio follow these steps.
 
 1. Add the includes folder to your visual studio's VC++ Directories -> Include Directories
 2. Add the lib folder to your visual studio's VC++ Directories -> Library Directories
-![Add includes and lib folder to your visual studio paths](Screenshot_1.jpg)
+![Add includes and lib folder to your visual studio paths](resources/screenshots/Screenshot_1.jpg)
 3. Add glfw3.lib and opengl32.lib in visual studio's Linker -> Input -> Additional Dependencies
-![Add glfw3.lib and opengl32.lib in visual studio's Linker](Screenshot_2.jpg)
+![Add glfw3.lib and opengl32.lib in visual studio's Linker](resources/screenshots/Screenshot_2.jpg)
 
 You should be all set up now!
 
