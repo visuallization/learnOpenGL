@@ -332,5 +332,8 @@ samples/modelbuilder/ObjectDetection_StopSigns/StopSignDetectionML.Model/MLModel
 samples/modelbuilder/ObjectDetection_StopSigns/StopSignDetectionML.Model/bestModel.onnx
 samples/modelbuilder/ObjectDetection_StopSigns/assets.zip
 
+# x64 Build
+x64
+
 # Exceptions (The following files should not be ingnored)
 !lib/glfw3.lib
