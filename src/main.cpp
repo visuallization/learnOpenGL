@@ -11,9 +11,13 @@
 
 using namespace std;
 
-// settings
+// Declarations
+unsigned int loadTexture(char const* path);
+
+// Settings
 const unsigned int SCREEN_WIDTH = 800;
 const unsigned int SCREEN_HEIGHT = 600;
+
 
 void resizeViewport(GLFWwindow* window, int width, int height) {
 	glViewport(0, 0, width, height);
@@ -182,62 +186,23 @@ int main() {
 	// Unbind vertex array
 	// glBindVertexArray(0);
 
-
+	// Flip y axis of images so they are loaded correctly
+	// stbi_set_flip_vertically_on_load(true);
+	
 	// GENERATING FIRST TEXTURE
-	unsigned int texture1;
-	glGenTextures(1, &texture1);
-	// Just like other objects we need to bind it so any subsequent texture commands will configure the currently bound texture
-	glBindTexture(GL_TEXTURE_2D, texture1);
-
-	// Set the texture wrapping and filtering options on the currently bound texture object
-	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_REPEAT);
-	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_REPEAT);
-	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
-	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
-
-	// IMAGE LOADING
-	// Flip y axis of image so it is loaded correctly
-	stbi_set_flip_vertically_on_load(true);
-
-	// Load first image
-	// We need the images width and height for generating textures later on
-	int width, height, numberOfColorChannels;
-	unsigned char* image1 = stbi_load("resources/textures/container.jpg", &width, &height, &numberOfColorChannels, 0);
-	if (image1) {
-		// Actually generate texture with the previously loaded image
-		glTexImage2D(GL_TEXTURE_2D, 0, GL_RGB, width, height, 0, GL_RGB, GL_UNSIGNED_BYTE, image1);
-		// Generate mipmaps
-		glGenerateMipmap(GL_TEXTURE_2D);
-	} else {
-		cout << "Failed to load texture" << endl;
-	}
-	// Free the image memory
-	stbi_image_free(image1);
+	unsigned int texture1 = loadTexture("resources/textures/container.jpg");
 
 	// GENERATE SECOND TEXTURE
-	unsigned int texture2;
-	glGenTextures(1, &texture2);
-	glBindTexture(GL_TEXTURE_2D, texture2);
-	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_REPEAT);
-	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_REPEAT);
-	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
-	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
-
-	// Load second image
-	unsigned char* image2 = stbi_load("resources/textures/awesomeface.png", &width, &height, &numberOfColorChannels, 0);
-	if (image2) {
-		glTexImage2D(GL_TEXTURE_2D, 0, GL_RGB, width, height, 0, GL_RGBA, GL_UNSIGNED_BYTE, image2);
-		glGenerateMipmap(GL_TEXTURE_2D);
-	} else {
-		cout << "Failed to load texture" << endl;
-	}
-	stbi_image_free(image2);
+	unsigned int texture2 = loadTexture("resources/textures/awesomeface.png");
 
 	// Activate the shader before setting texture uniforms
 	shader.use();
 	// Tell OpenGL to which texture unit each shader sampler belongs to
 	shader.setInt("texture1", 0);
 	shader.setInt("texture2", 1);
+
+
+	// CREATE SOME TRANSPARENT GEOMETRY
 
 
 	// CREATE A LIGHT SOURCE CUBE
@@ -343,4 +308,51 @@ int main() {
 	// clean up all the GLFW resources and properly exit the application
 	glfwTerminate();
 	return 0;
+}
+
+unsigned int loadTexture(char const* path) {
+	unsigned int textureId;
+	glGenTextures(1, &textureId);
+
+	int width, height, numberOfChannels;
+	// Load image and save it's width, height and number of channels in the corresponding variables
+	unsigned char* image = stbi_load(path, &width, &height, &numberOfChannels, 0);
+
+	if (image) {
+		GLenum format;
+
+		switch (numberOfChannels) {
+			case 1:
+				format = GL_RED;
+				break;
+			case 3:
+				format = GL_RGB;
+				break;
+			case 4:
+			default:
+				format = GL_RGBA;
+				break;
+		}
+
+		// Just like other objects we need to bind so any subsequent texture commands will configure the currently bound texture
+		glBindTexture(GL_TEXTURE_2D, textureId);
+		// Actually generate texture with the previously loaded image
+		glTexImage2D(GL_TEXTURE_2D, 0, format, width, height, 0, format, GL_UNSIGNED_BYTE, image);
+		// Generate mipmaps
+		glGenerateMipmap(GL_TEXTURE_2D);
+
+		// Set the texture wrapping and filtering options on the currently bound texture object
+		GLint wrappingMode = format == GL_RGBA ? GL_CLAMP_TO_EDGE : GL_REPEAT;
+		glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, wrappingMode);
+		glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, wrappingMode);
+		glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR_MIPMAP_LINEAR);
+		glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
+	} else {
+		cout << "Texture failed to load at path: " << path << endl;
+	}
+
+	// Free the image memory
+	stbi_image_free(image);
+
+	return textureId;
 }
