@@ -38,6 +38,10 @@ void main() {
 
     // create phong lighting
     vec3 lighting = (ambient + diffuse + specular) * objectColor;
-    // multiply lighting and texture
-    fragColor = vec4(lighting, 1.0) * mix(texture(texture1, texCoord), texture(texture2, texCoord), 0.2);
+
+    // multiply lighting and only one texture
+    fragColor = vec4(lighting, 1.0) * texture(texture1, texCoord);
+
+    // multiply lighting and multiple combined textures
+    // fragColor = vec4(lighting, 1.0) * mix(texture(texture1, texCoord), texture(texture2, texCoord), 0.2);
 }

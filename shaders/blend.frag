@@ -9,7 +9,8 @@ void main() {
 	vec4 texColor = texture(texture1, texCoords);
 
 	if (texColor.a < 0.1) {
-		discard;
+		// ensures the fragment will not be further processed and thus not end up into the color buffer
+		//discard;
 	}
 
 	fragColor = texColor;

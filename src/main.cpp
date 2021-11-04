@@ -76,6 +76,10 @@ int main() {
 
 	// Enable Z-Buffer
 	glEnable(GL_DEPTH_TEST);
+	// Enable Blending
+	glEnable(GL_BLEND);
+	glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
+
 
 	// BUILD VERTEX AND FRAGMENT SHADERS
 	Shader shader("shaders/shader.vert", "shaders/shader.frag");
@@ -157,11 +161,13 @@ int main() {
 	// Define the positions of transparent objects
 	glm::vec3 transparentPositions[] = {
 		glm::vec3(-2.5f, -1.1f, -0.6f),
-		glm::vec3(1.5f,  -1.0f,  -0.6f),
-		glm::vec3(-0.2f, -1.1f,  -0.6f),
-		glm::vec3(-0.5f, -1.0f, -0.6f),
-		glm::vec3(1.0f,  -1.1f, -0.6f)
+		glm::vec3(1.5f,  -1.0f, -0.5f),
+		glm::vec3(-0.2f, -1.1f, -0.4f),
+		glm::vec3(-0.5f, -1.0f, -0.3f),
+		glm::vec3(1.0f,  -1.1f, -0.2f)
 	};
+
+	glm::vec3 semiTransparentPosition = glm::vec3(-1.0f, -1.0f, -0.1f);
 
 	// Define the position of the light source cube
 	glm::vec3 lightPostion(0.0f, 0.0f, -1.0f);
@@ -213,7 +219,7 @@ int main() {
 	unsigned int texture1 = loadTexture("resources/textures/container.jpg");
 	unsigned int texture2 = loadTexture("resources/textures/awesomeface.png");
 	unsigned int texture3 = loadTexture("resources/textures/grass.png");
-
+	unsigned int texture4 = loadTexture("resources/textures/window.png");
 
 	// Activate the shader before setting texture uniforms
 	shader.use();
@@ -222,7 +228,7 @@ int main() {
 	shader.setInt("texture2", 1);
 
 	blendShader.use();
-	blendShader.setInt("texture1", 2);
+	blendShader.setInt("texture1", 0);
 
 
 	// CREATE SOME TRANSPARENT GEOMETRY
@@ -233,6 +239,17 @@ int main() {
 	glBindVertexArray(transparentVAO);
 	glBindBuffer(GL_ARRAY_BUFFER, transparentVBO);
 	glBufferData(GL_ARRAY_BUFFER, sizeof(transparentVertices), &transparentVertices, GL_STATIC_DRAW);
+	glEnableVertexAttribArray(0);
+	glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, 5 * sizeof(float), (void*)0);
+	glEnableVertexAttribArray(1);
+	glVertexAttribPointer(1, 2, GL_FLOAT, GL_FALSE, 5 * sizeof(float), (void*)(3 * sizeof(float)));
+
+
+	// CREATE SOME SEMI-TRANSPARENT TEXTURE
+	unsigned int semiTransparentVAO;
+	glGenVertexArrays(1, &semiTransparentVAO);
+	glBindVertexArray(semiTransparentVAO);
+	glBindBuffer(GL_ARRAY_BUFFER, transparentVBO);
 	glEnableVertexAttribArray(0);
 	glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, 5 * sizeof(float), (void*)0);
 	glEnableVertexAttribArray(1);
@@ -262,6 +279,7 @@ int main() {
 		// Actually clear the screen's color and depth buffer (state-using function)
 		glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 
+
 		// TEXTURES
 		// Activate the texture unit first before binding texture
 		// Most graphic drivers set default texture unit to 0 and you can skip this step if you only want to assign 1 texture
@@ -272,8 +290,13 @@ int main() {
 		glActiveTexture(GL_TEXTURE1);
 		glBindTexture(GL_TEXTURE_2D, texture2);
 
-		glActiveTexture(GL_TEXTURE2);
-		glBindTexture(GL_TEXTURE_2D, texture3);
+
+		// When rendering semi tranparent objects the zbuffer cannot handle the sorting alone,
+		// so we have to draw the semi transparent object which is furthest away first and then continue with next one
+		// There is a general outline when drawing opaque and transparnet objects:
+		// 1. Draw all opaque objects first.
+		// 2. Sort all the transparent objects.
+		// 3. Draw all the transparent objects.
 
 
 		// RENDER CUBES
@@ -335,6 +358,9 @@ int main() {
 		// RENDER TRANSPARENT GEOMETRY
 		glBindVertexArray(transparentVAO);
 
+		glActiveTexture(GL_TEXTURE0);
+		glBindTexture(GL_TEXTURE_2D, texture3);
+
 		blendShader.use();
 		blendShader.setMat4("view", view);
 		blendShader.setMat4("projection", projection);
@@ -344,6 +370,18 @@ int main() {
 			blendShader.setMat4("model", model);
 			glDrawArrays(GL_TRIANGLES, 0, 6);
 		}
+
+
+		// RENDER SEMI-TRANSPARENT GEOMERTY
+		glBindVertexArray(semiTransparentVAO);
+		glActiveTexture(GL_TEXTURE0);
+		glBindTexture(GL_TEXTURE_2D, texture4);
+		model = glm::mat4(1.0f);
+		model = glm::translate(model, semiTransparentPosition);
+		model = glm::scale(model, glm::vec3(0.5f));
+		blendShader.setMat4("model", model);
+		glDrawArrays(GL_TRIANGLES, 0, 6);
+
 
 		// Swap the 2D color buffer
 		// front buffer displays the rendered image

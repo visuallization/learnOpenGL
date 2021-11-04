@@ -148,6 +148,8 @@
     <Image Include="awesomeface.png" />
     <Image Include="container.jpg" />
     <Image Include="resources\textures\grass.png" />
+    <Image Include="resources\textures\wall.jpg" />
+    <Image Include="resources\textures\window.png" />
   </ItemGroup>
   <ItemGroup>
     <None Include="shaders\blend.frag" />

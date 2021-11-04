@@ -30,6 +30,12 @@
     <Image Include="resources\textures\grass.png">
       <Filter>Textures</Filter>
     </Image>
+    <Image Include="resources\textures\wall.jpg">
+      <Filter>Resource Files</Filter>
+    </Image>
+    <Image Include="resources\textures\window.png">
+      <Filter>Resource Files</Filter>
+    </Image>
   </ItemGroup>
   <ItemGroup>
     <None Include="shaders\light.frag">
