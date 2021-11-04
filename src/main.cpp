@@ -80,6 +80,8 @@ int main() {
 	// BUILD VERTEX AND FRAGMENT SHADERS
 	Shader shader("shaders/shader.vert", "shaders/shader.frag");
 	Shader lightShader("shaders/light.vert", "shaders/light.frag");
+	Shader blendShader("shaders/blend.vert", "shaders/blend.frag");
+
 
 	// Define position coordinates and texture coordinates of the vertices a cube
 	float vertices[] = {
@@ -127,6 +129,17 @@ int main() {
 		-0.5f,   0.5f,	-0.5f,		0.0f, 1.0f,				0.0f,  1.0f,  0.0f,
 	};
 
+	float transparentVertices[] = {
+		// positions			// texture Coords 
+		0.0f,  0.5f,  0.0f,		0.0f,  0.0f,
+		0.0f, -0.5f,  0.0f,		0.0f,  1.0f,
+		1.0f, -0.5f,  0.0f,		1.0f,  1.0f,
+
+		0.0f,  0.5f,  0.0f,		0.0f,  0.0f,
+		1.0f, -0.5f,  0.0f,		1.0f,  1.0f,
+		1.0f,  0.5f,  0.0f,		1.0f,  0.0f
+	};
+
 	// Define the positions of multiple cubes
 	glm::vec3 cubePositions[] = {
 		glm::vec3(-2.0f, -5.0f, 15.0f),
@@ -139,6 +152,15 @@ int main() {
 		glm::vec3(1.5f,  2.0f, -2.5f),
 		glm::vec3(1.5f,  0.2f, -1.5f),
 		glm::vec3(-1.3f,  1.0f, -1.5f)
+	};
+
+	// Define the positions of transparent objects
+	glm::vec3 transparentPositions[] = {
+		glm::vec3(-2.5f, -1.1f, -0.6f),
+		glm::vec3(1.5f,  -1.0f,  -0.6f),
+		glm::vec3(-0.2f, -1.1f,  -0.6f),
+		glm::vec3(-0.5f, -1.0f, -0.6f),
+		glm::vec3(1.0f,  -1.1f, -0.6f)
 	};
 
 	// Define the position of the light source cube
@@ -183,17 +205,15 @@ int main() {
 	// Another way to fetch the location of the vertex atrribute in a shader
 	// cout << glGetAttribLocation(shaderProgram, "aPos") << endl;
 
-	// Unbind vertex array
-	// glBindVertexArray(0);
 
 	// Flip y axis of images so they are loaded correctly
 	// stbi_set_flip_vertically_on_load(true);
 	
-	// GENERATING FIRST TEXTURE
+	// LOADING & GENERATING TEXTURES
 	unsigned int texture1 = loadTexture("resources/textures/container.jpg");
-
-	// GENERATE SECOND TEXTURE
 	unsigned int texture2 = loadTexture("resources/textures/awesomeface.png");
+	unsigned int texture3 = loadTexture("resources/textures/grass.png");
+
 
 	// Activate the shader before setting texture uniforms
 	shader.use();
@@ -201,8 +221,22 @@ int main() {
 	shader.setInt("texture1", 0);
 	shader.setInt("texture2", 1);
 
+	blendShader.use();
+	blendShader.setInt("texture1", 2);
+
 
 	// CREATE SOME TRANSPARENT GEOMETRY
+	unsigned int transparentVAO;
+	unsigned int transparentVBO;
+	glGenVertexArrays(1, &transparentVAO);
+	glGenBuffers(1, &transparentVBO);
+	glBindVertexArray(transparentVAO);
+	glBindBuffer(GL_ARRAY_BUFFER, transparentVBO);
+	glBufferData(GL_ARRAY_BUFFER, sizeof(transparentVertices), &transparentVertices, GL_STATIC_DRAW);
+	glEnableVertexAttribArray(0);
+	glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, 5 * sizeof(float), (void*)0);
+	glEnableVertexAttribArray(1);
+	glVertexAttribPointer(1, 2, GL_FLOAT, GL_FALSE, 5 * sizeof(float), (void*)(3 * sizeof(float)));
 
 
 	// CREATE A LIGHT SOURCE CUBE
@@ -213,6 +247,9 @@ int main() {
 	glBindBuffer(GL_ARRAY_BUFFER, VBO);
 	glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, 8 * sizeof(float), (void*)0);
 	glEnableVertexAttribArray(0);
+
+	// Unbind vertex array
+	 glBindVertexArray(0);
 
 	// Initialize the render loop
 	while (!glfwWindowShouldClose(window)) {
@@ -235,9 +272,12 @@ int main() {
 		glActiveTexture(GL_TEXTURE1);
 		glBindTexture(GL_TEXTURE_2D, texture2);
 
+		glActiveTexture(GL_TEXTURE2);
+		glBindTexture(GL_TEXTURE_2D, texture3);
+
 
 		// RENDER CUBES
-
+		glBindVertexArray(VAO);
 		// Activate shader programm object for the cubes
 		// Every shader and rendering call after glUseProgram will now use this program object (and thus the shaders)
 		shader.use();
@@ -261,7 +301,6 @@ int main() {
 		glUniformMatrix4fv(glGetUniformLocation(shader.id, "view"), 1, GL_FALSE, glm::value_ptr(view));
 		glUniformMatrix4fv(glGetUniformLocation(shader.id, "projection"), 1, GL_FALSE, glm::value_ptr(projection));
 
-		glBindVertexArray(VAO);
 		for (unsigned int i = 0; i < 10; i++) {
 			// Reset model identity matrix
 			model = glm::mat4(1.0f);
@@ -277,6 +316,8 @@ int main() {
 
 
 		// RENDER LIGHT SOURCE CUBE
+		glBindVertexArray(lightVAO);
+
 		lightShader.use();
 		lightShader.setMat4("view", view);
 		lightShader.setMat4("projection", projection);
@@ -288,9 +329,21 @@ int main() {
 		model = glm::scale(model, glm::vec3(0.2f));
 		lightShader.setMat4("model", model);
 
-		glBindVertexArray(lightVAO);
 		glDrawArrays(GL_TRIANGLES, 0, 36);
 
+
+		// RENDER TRANSPARENT GEOMETRY
+		glBindVertexArray(transparentVAO);
+
+		blendShader.use();
+		blendShader.setMat4("view", view);
+		blendShader.setMat4("projection", projection);
+		for (unsigned int i = 0; i < 5; i++) {
+			model = glm::mat4(1.0f);
+			model = glm::translate(model, transparentPositions[i]);
+			blendShader.setMat4("model", model);
+			glDrawArrays(GL_TRIANGLES, 0, 6);
+		}
 
 		// Swap the 2D color buffer
 		// front buffer displays the rendered image

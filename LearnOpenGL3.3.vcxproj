@@ -147,8 +147,11 @@
   <ItemGroup>
     <Image Include="awesomeface.png" />
     <Image Include="container.jpg" />
+    <Image Include="resources\textures\grass.png" />
   </ItemGroup>
   <ItemGroup>
+    <None Include="shaders\blend.frag" />
+    <None Include="shaders\blend.vert" />
     <None Include="shaders\light.frag" />
     <None Include="shaders\light.vert" />
     <None Include="shaders\shader.frag" />
